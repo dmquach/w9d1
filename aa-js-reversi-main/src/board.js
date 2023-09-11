@@ -88,24 +88,41 @@ Board.prototype.isOccupied = function (pos) {
  * Returns empty array if no pieces of the opposite color are found.
  */
 Board.prototype._positionsToFlip = function (pos, color, dir, piecesToFlip) {
+  // returns empty array when pos not on board
   if (!this.isValidPos(pos)) return []
   let [x, y] = pos
-  // console.log(Board.DIRS)
-  Board.DIRS.forEach(dir => {
-    dir[0] += x;
-    dir[1] += y
-    console.log(dir)
-    if (!this.isValidPos(dir)) return []
-  })
+  // returns empty array when there is a blank space one position away
+  let newDir = [dir[0] + x, dir[1] + y]
+  if (!this.isOccupied(newDir)) return []
+  //returns arry if no piece of opposite color is found
+  if (this.getPiece(newDir) && this.isMine(newDir, color)) return []
+  // returns emtpy arr if no piece of same color
+  let antiDir = [x + dir[0], y + dir[1]]
+  let arr = []
+  while (this.isValidPos(antiDir)){
+    if (this.isMine(antiDir, color)) break
+    arr.push([antiDir[0], antiDir[1]])
+    antiDir[0] += dir[0]
+    antiDir[1] += dir[1]
+  }
+  if (!this.isValidPos(antiDir)) return []
+  return arr
 }
-let test = new Board()
-test._positionsToFlip([4,6])
+
+
 /**
  * Checks that a position is not already occupied and that the color
  * taking the position will result in some pieces of the opposite
  * color being flipped.
  */
 Board.prototype.validMove = function (pos, color) {
+  let valid = false
+  Board.DIRS.forEach(el => {
+    let arr = this._positionsToFlip(pos, color, el)
+    console.log(arr.length)
+    if (arr.length > 0) valid = true
+  })
+  return valid
 };
 
 /**
@@ -141,7 +158,59 @@ Board.prototype.isOver = function () {
  * Prints a string representation of the Board to the console.
  */
 Board.prototype.print = function () {
+  return []
 };
+
+testBoardLongHorzDiagonal = new Board();
+
+testBoardLongHorzDiagonal.grid[1][1] = new Piece("black")
+testBoardLongHorzDiagonal.grid[1][3] = new Piece("black")
+testBoardLongHorzDiagonal.grid[1][4] = new Piece("white")
+testBoardLongHorzDiagonal.grid[1][6] = new Piece("white")
+testBoardLongHorzDiagonal.grid[1][7] = new Piece("white")
+
+testBoardLongHorzDiagonal.grid[2][0] = new Piece("black")
+testBoardLongHorzDiagonal.grid[2][2] = new Piece("white")
+testBoardLongHorzDiagonal.grid[2][3] = new Piece("white")
+testBoardLongHorzDiagonal.grid[2][4] = new Piece("black")
+testBoardLongHorzDiagonal.grid[2][5] = new Piece("black")
+testBoardLongHorzDiagonal.grid[2][7] = new Piece("black")
+
+testBoardLongHorzDiagonal.grid[3][0] = new Piece("black")
+testBoardLongHorzDiagonal.grid[3][2] = new Piece("white")
+testBoardLongHorzDiagonal.grid[3][3] = new Piece("white")
+testBoardLongHorzDiagonal.grid[3][4] = new Piece("black")
+testBoardLongHorzDiagonal.grid[3][5] = new Piece("black")
+testBoardLongHorzDiagonal.grid[3][7] = new Piece("black")
+
+testBoardLongHorzDiagonal.grid[4][0] = new Piece("black")
+testBoardLongHorzDiagonal.grid[4][1] = new Piece("black")
+testBoardLongHorzDiagonal.grid[4][3] = new Piece("black")
+testBoardLongHorzDiagonal.grid[4][4] = new Piece("white")
+testBoardLongHorzDiagonal.grid[4][6] = new Piece("white")
+testBoardLongHorzDiagonal.grid[4][7] = new Piece("black")
+
+testBoardLongHorzDiagonal.grid[5][0] = new Piece("white")
+
+testBoardLongHorzDiagonal.grid[6][2] = new Piece("white")
+testBoardLongHorzDiagonal.grid[6][3] = new Piece("white")
+testBoardLongHorzDiagonal.grid[6][4] = new Piece("white")
+testBoardLongHorzDiagonal.grid[6][5] = new Piece("white")
+testBoardLongHorzDiagonal.grid[6][6] = new Piece("black")
+
+testBoardLongHorzDiagonal.grid[7][1] = new Piece("black")
+testBoardLongHorzDiagonal.grid[7][2] = new Piece("white")
+testBoardLongHorzDiagonal.grid[7][3] = new Piece("white")
+testBoardLongHorzDiagonal.grid[7][4] = new Piece("white")
+testBoardLongHorzDiagonal.grid[7][5] = new Piece("white")
+
+// console.log(testBoardLongHorzDiagonal.grid)
+// console.log(testBoardLongHorzDiagonal.print)
+// console.log(testBoardLongHorzDiagonal._positionsToFlip([1, 0], "white", [1, 0]))
+// console.log(testBoardLongHorzDiagonal._positionsToFlip([5, 7], "white", [-1, 0]))
+// testBoard = new Board
+// console.log(testBoard.validMove([2, 3], "black"))
+// //[2, 0], [3, 0], [4, 0]
 
 // DON'T TOUCH THIS CODE
 if (typeof window === 'undefined'){
