@@ -40,6 +40,9 @@ Board.DIRS = [
  * Checks if a given position is on the Board.
  */
 Board.prototype.isValidPos = function (pos) {
+  let [x, y] = pos;
+  if (x < 0 || y < 0 || x > 7 || y > 7) return false
+  return true
 };
 
 /**
@@ -47,6 +50,9 @@ Board.prototype.isValidPos = function (pos) {
  * throwing an Error if the position is invalid.
  */
 Board.prototype.getPiece = function (pos) {
+  if (!this.isValidPos(pos)) throw new Error('Not valid pos!')
+  let [x, y] = pos
+  return this.grid[x][y]
 };
 
 /**
@@ -54,12 +60,18 @@ Board.prototype.getPiece = function (pos) {
  * matches a given color.
  */
 Board.prototype.isMine = function (pos, color) {
+  let [x, y] = pos
+  let piece = this.grid[x][y]
+  return piece && piece.color == color
 };
 
 /**
  * Checks if a given position has a piece on it.
  */
 Board.prototype.isOccupied = function (pos) {
+  let [x, y] = pos
+  let piece = this.grid[x][y]
+  return !!piece
 };
 
 /**
@@ -76,8 +88,18 @@ Board.prototype.isOccupied = function (pos) {
  * Returns empty array if no pieces of the opposite color are found.
  */
 Board.prototype._positionsToFlip = function (pos, color, dir, piecesToFlip) {
+  if (!this.isValidPos(pos)) return []
+  let [x, y] = pos
+  // console.log(Board.DIRS)
+  Board.DIRS.forEach(dir => {
+    dir[0] += x;
+    dir[1] += y
+    console.log(dir)
+    if (!this.isValidPos(dir)) return []
+  })
 }
-
+let test = new Board()
+test._positionsToFlip([4,6])
 /**
  * Checks that a position is not already occupied and that the color
  * taking the position will result in some pieces of the opposite
