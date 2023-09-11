@@ -93,19 +93,19 @@ Board.prototype._positionsToFlip = function (pos, color, dir, piecesToFlip) {
   let [x, y] = pos
   // returns empty array when there is a blank space one position away
   let newDir = [dir[0] + x, dir[1] + y]
+  if (!this.isValidPos(newDir))  return []
   if (!this.isOccupied(newDir)) return []
   //returns arry if no piece of opposite color is found
   if (this.getPiece(newDir) && this.isMine(newDir, color)) return []
   // returns emtpy arr if no piece of same color
-  let antiDir = [x + dir[0], y + dir[1]]
   let arr = []
-  while (this.isValidPos(antiDir)){
-    if (this.isMine(antiDir, color)) break
-    arr.push([antiDir[0], antiDir[1]])
-    antiDir[0] += dir[0]
-    antiDir[1] += dir[1]
+  while (this.isOccupied(newDir)){
+    if (this.isMine(newDir, color)) break
+    arr.push([newDir[0], newDir[1]])
+    newDir[0] += dir[0]
+    newDir[1] += dir[1]
   }
-  if (!this.isValidPos(antiDir)) return []
+  if (!this.isMine(newDir, color)) return []
   return arr
 }
 
@@ -119,7 +119,6 @@ Board.prototype.validMove = function (pos, color) {
   let valid = false
   Board.DIRS.forEach(el => {
     let arr = this._positionsToFlip(pos, color, el)
-    console.log(arr.length)
     if (arr.length > 0) valid = true
   })
   return valid
@@ -132,6 +131,16 @@ Board.prototype.validMove = function (pos, color) {
  * Throws an error if the position represents an invalid move.
  */
 Board.prototype.placePiece = function (pos, color) {
+  if (!this.validMove(pos, color)) throw new Error("Invalid move!")
+  let arr = []
+  Board.DIRS.forEach(el => {
+    arr = arr.concat(this._positionsToFlip(pos, color, el))
+  })
+  arr.forEach(pos => {
+    console.log(this.grid[pos[0]][pos[1]])
+    this.grid[pos[0]][pos[1]].flip()
+  })
+  this.grid[pos[0]][pos[1]] = new Piece(`${color}`)
 };
 
 /**
@@ -139,6 +148,15 @@ Board.prototype.placePiece = function (pos, color) {
  * the Board for a given color.
  */
 Board.prototype.validMoves = function (color) {
+  let arr = []
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
+      if (this.validMove(this[i][j])) {
+        arr.push(this[i][j])
+      }
+    }
+  }
+  return arr
 };
 
 /**
@@ -211,6 +229,8 @@ testBoardLongHorzDiagonal.grid[7][5] = new Piece("white")
 // testBoard = new Board
 // console.log(testBoard.validMove([2, 3], "black"))
 // //[2, 0], [3, 0], [4, 0]
+let testBoard = new Board
+console.log(testBoard.placePiece([2, 3], "black"))
 
 // DON'T TOUCH THIS CODE
 if (typeof window === 'undefined'){
