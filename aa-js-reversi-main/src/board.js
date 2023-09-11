@@ -10,7 +10,18 @@ if (typeof window === 'undefined'){
  * and two white pieces at [3, 3] and [4, 4].
  */
 function _makeGrid() {
+  const arr = []
+  for (let i = 0; i < 8; i++) {
+    const innerArr = Array.from(Array(8))
+    arr.push(innerArr)
+  }
+  arr[3][4] = new Piece("black")
+  arr[4][3] = new Piece("black")
+  arr[3][3] = new Piece("white")
+  arr[4][4] = new Piece("white")
+  return arr
 }
+
 
 /**
  * Constructs a Board with a starting grid set up.
@@ -57,7 +68,7 @@ Board.prototype.isOccupied = function (pos) {
  * It then returns an array of all pieces between the starting position and
  * ending position.
  *
- * Returns an empty array if it reaches the end of the board before finding 
+ * Returns an empty array if it reaches the end of the board before finding
  * another piece of the same color.
  *
  * Returns empty array if it hits an empty position.
