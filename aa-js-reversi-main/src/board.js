@@ -20,6 +20,7 @@ function _makeGrid() {
   arr[3][3] = new Piece("white")
   arr[4][4] = new Piece("white")
   return arr
+
 }
 
 
@@ -41,7 +42,7 @@ Board.DIRS = [
  */
 Board.prototype.isValidPos = function (pos) {
   let [x, y] = pos;
-  if (x < 0 || y < 0 || x > 7 || y > 7) return false
+  if ((x < 0 || y < 0) || (x > 7 || y > 7)) return false;
   return true
 };
 
@@ -61,6 +62,7 @@ Board.prototype.getPiece = function (pos) {
  */
 Board.prototype.isMine = function (pos, color) {
   let [x, y] = pos
+  // console.log("pos", pos)
   let piece = this.grid[x][y]
   return piece && piece.color == color
 };
@@ -70,6 +72,8 @@ Board.prototype.isMine = function (pos, color) {
  */
 Board.prototype.isOccupied = function (pos) {
   let [x, y] = pos
+  // console.log("pos", pos)
+  if (!this.isValidPos(pos)) return false
   let piece = this.grid[x][y]
   return !!piece
 };
@@ -99,13 +103,15 @@ Board.prototype._positionsToFlip = function (pos, color, dir, piecesToFlip) {
   if (this.getPiece(newDir) && this.isMine(newDir, color)) return []
   // returns emtpy arr if no piece of same color
   let arr = []
+  //
   while (this.isOccupied(newDir)){
     if (this.isMine(newDir, color)) break
     arr.push([newDir[0], newDir[1]])
+
     newDir[0] += dir[0]
     newDir[1] += dir[1]
   }
-  if (!this.isMine(newDir, color)) return []
+  if (!this.isValidPos(newDir) || !this.isMine(newDir, color)) return []
   return arr
 }
 
@@ -137,7 +143,6 @@ Board.prototype.placePiece = function (pos, color) {
     arr = arr.concat(this._positionsToFlip(pos, color, el))
   })
   arr.forEach(pos => {
-    console.log(this.grid[pos[0]][pos[1]])
     this.grid[pos[0]][pos[1]].flip()
   })
   this.grid[pos[0]][pos[1]] = new Piece(`${color}`)
@@ -151,18 +156,22 @@ Board.prototype.validMoves = function (color) {
   let arr = []
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
-      if (this.validMove(this[i][j])) {
-        arr.push(this[i][j])
+      if (this.validMove([i, j], color)) {
+        arr.push([i, j])
       }
     }
   }
+
   return arr
 };
+
 
 /**
  * Checks if there are any valid moves for the given color.
  */
 Board.prototype.hasMove = function (color) {
+  if (this.validMoves(color).length > 0) return true;
+  return false
 };
 
 /**
@@ -170,6 +179,9 @@ Board.prototype.hasMove = function (color) {
  * the black player are out of moves.
  */
 Board.prototype.isOver = function () {
+  let some = false
+  if (!this.hasMove('white') && !this.hasMove('black')) some = true;
+  return some
 };
 
 /**
@@ -222,7 +234,7 @@ testBoardLongHorzDiagonal.grid[7][3] = new Piece("white")
 testBoardLongHorzDiagonal.grid[7][4] = new Piece("white")
 testBoardLongHorzDiagonal.grid[7][5] = new Piece("white")
 
-// console.log(testBoardLongHorzDiagonal.grid)
+// console.log(testBoardLongHorzDiagonal.validMoves("black"))
 // console.log(testBoardLongHorzDiagonal.print)
 // console.log(testBoardLongHorzDiagonal._positionsToFlip([1, 0], "white", [1, 0]))
 // console.log(testBoardLongHorzDiagonal._positionsToFlip([5, 7], "white", [-1, 0]))
@@ -230,7 +242,15 @@ testBoardLongHorzDiagonal.grid[7][5] = new Piece("white")
 // console.log(testBoard.validMove([2, 3], "black"))
 // //[2, 0], [3, 0], [4, 0]
 let testBoard = new Board
-console.log(testBoard.placePiece([2, 3], "black"))
+const fillBoard = function (board) {
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
+      board.grid[i][j] = new Piece("white");
+    }
+  }
+};
+fillBoard(testBoard)
+console.log(testBoard.validMoves("black"))
 
 // DON'T TOUCH THIS CODE
 if (typeof window === 'undefined'){
